@@ -106,5 +106,19 @@ router.route('/resetpassword').post((req, res) => {
     });
 });
 
+//delete student account 
+router.route('/deletestudent/:matricNo').delete((req, res) => {
+    var matricNo = req.params.matricNo;
+
+    var sql = "DELETE * FROM student WHERE matricNo=?";
+
+    db.query(sql, [matricNo], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "Account Successfully Deleted" }));
+        }
+    });
+});
 
 module.exports = router;
