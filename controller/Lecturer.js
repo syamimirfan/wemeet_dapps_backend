@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-router.route('./view/lecturer').get((req, res) => {
+router.route('./view').get((req, res) => {
 
     const sql = "SELECT * FROM lecturer";
 
@@ -29,10 +29,11 @@ router.route('/addlecturer').post((req, res) => {
     var faculty = req.body.faculty;
     var department = req.body.department;
     var lecturerImage = req.body.lecturerImage;
+    var lecturerImageFirebase = req.body.lecturerImageFirebase
 
-    const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, faculty, department, status) VALUES(?,?,?,?,?,?,?,?,?,?)";
+    const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, status) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
-    db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, faculty, department, 2], function(error, data, fields) {
+    db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, 2], function(error, data, fields) {
         if (error) {
             res.send(JSON.stringify({ success: false, message: error }));
         } else {
@@ -40,6 +41,38 @@ router.route('/addlecturer').post((req, res) => {
         }
     })
 })
+
+//to get lecturerImage link from database to counter the file same name from firebase
+router.route('/getimage/:staffNo').get((req, res) => {
+    var staffNo = req.params.staffNo;
+
+    var sql = "SELECT lecturerImageFirebase FROM lecturer WHERE staffNo=?";
+
+    db.query(sql, [staffNo], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.json(data[0]);
+        }
+    })
+});
+
+//to update link image for lecturerImage from firebase
+router.route('/updateimage/:staffNo').patch((req, res) => {
+    var staffNo = req.params.staffNo;
+    var lecturerImage = req.body.lecturerImage;
+
+    var sql = "UPDATE lecturer SET lecturerImage = ? WHERE staffNo=?";
+
+    db.query(sql, [lecturerImage, staffNo], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "lecturerImage Successfully Update" }));
+        }
+    })
+});
+
 
 //lecturer login backend
 router.route('/lecturerlogin').post((req, res) => {
@@ -66,7 +99,7 @@ router.route('/lecturerlogin').post((req, res) => {
 })
 
 //reset password backend
-router.route('/resetpassword').post((req, res) => {
+router.route('/resetpassword').patch((req, res) => {
     var lecturerEmail = req.body.lecturerEmail;
     var lecturerPassword = req.body.lecturerPassword;
 
@@ -96,6 +129,24 @@ router.route('/deletelecturer/:matricNo').delete((req, res) => {
     });
 });
 
+//get lecturer detail by passing staffNo
+router.route('/getlecturer/:staffNo').get((req, res) => {
+    var staffNumber = req.params.staffNo;
+    const sql = "SELECT * FROM lecturer WHERE staffNo = ?";
+
+    db.query(sql, [staffNumber], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, student: data }));
+            } else {
+                res.send(JSON.stringify({ success: false, message: "User Not Found" }));
+            }
+
+        }
+    });
+})
 
 
 module.exports = router;

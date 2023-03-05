@@ -44,24 +44,6 @@ router.route('/studentlogin').post((req, res) => {
 
 });
 
-router.route('/getstudent/:matricNo').get((req, res) => {
-    var matricNumber = req.params.matricNo;
-    const sql = "SELECT * FROM student WHERE matricNo = ?";
-
-    db.query(sql, matricNumber, function(err, data) {
-        if (err) {
-            res.send(JSON.stringify({ success: false, message: err }));
-        } else {
-            if (data.length > 0) {
-                res.send(JSON.stringify({ success: true, student: data }));
-            } else {
-                res.send(JSON.stringify({ success: false, message: "User Not Found" }));
-            }
-
-        }
-    });
-})
-
 //student sign up backend
 router.route('/addstudent').post((req, res) => {
     var matricNo = req.body.matricNo;
@@ -73,15 +55,16 @@ router.route('/addstudent').post((req, res) => {
     var faculty = req.body.faculty;
     var program = req.body.program;
     var studImage = req.body.studImage;
+    var studImageFirebase = req.body.studImageFirebase;
 
     //create query
-    var sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, faculty, program, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    var sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     //call database to insert so add or include database
-    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, faculty, program, 1], function(error) {
+    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, 1], function(error, data) {
         if (error) {
             // if error send response here
-            res.send(JSON.stringify({ success: false, message: error }));
+            res.send(JSON.stringify({ success: false, message: error, image: studImageFirebase, messageDuplicated: true }));
         } else {
             // if success send response here
             res.send(JSON.stringify({ success: true, message: 'Student Registered' }));
@@ -91,7 +74,7 @@ router.route('/addstudent').post((req, res) => {
 });
 
 //reset password backend
-router.route('/resetpassword').post((req, res) => {
+router.route('/resetpassword').patch((req, res) => {
     var studEmail = req.body.studEmail;
     var studPassword = req.body.studPassword;
 
@@ -105,6 +88,38 @@ router.route('/resetpassword').post((req, res) => {
         }
     });
 });
+
+//to get studImage link from database to counter the file same name from firebase
+router.route('/getimage/:matricNo').get((req, res) => {
+    var matricNo = req.params.matricNo;
+
+    var sql = "SELECT studImageFirebase FROM student WHERE matricNo=?";
+
+    db.query(sql, [matricNo], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.json(data[0]);
+        }
+    })
+});
+
+//to update link image for studImage from firebase
+router.route('/updateimage/:matricNo').patch((req, res) => {
+    var matricNo = req.params.matricNo;
+    var studImage = req.body.studImage;
+
+    var sql = "UPDATE student SET studImage = ? WHERE matricNo=?";
+
+    db.query(sql, [studImage, matricNo], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "studImage Successfully Update" }));
+        }
+    })
+});
+
 
 //delete student account 
 router.route('/deletestudent/:matricNo').delete((req, res) => {
@@ -120,5 +135,25 @@ router.route('/deletestudent/:matricNo').delete((req, res) => {
         }
     });
 });
+
+//get student detail by passing matricNo
+router.route('/getstudent/:matricNo').get((req, res) => {
+    var matricNumber = req.params.matricNo;
+    const sql = "SELECT * FROM student WHERE matricNo = ?";
+
+    db.query(sql, [matricNumber], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, student: data }));
+            } else {
+                res.send(JSON.stringify({ success: false, message: "User Not Found" }));
+            }
+
+        }
+    });
+})
+
 
 module.exports = router;
