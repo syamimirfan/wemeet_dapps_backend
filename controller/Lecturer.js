@@ -139,7 +139,10 @@ router.route('/getlecturer/:staffNo').get((req, res) => {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
             if (data.length > 0) {
-                res.send(JSON.stringify({ success: true, student: data }));
+                //lecturer: data is VERY IMPORTANT!!
+                //IF NOT WE CANNOT PASS TO THE FLUTTER OBJECT 
+                //e.g lecturerResponse['lecturer'][0]['staffNo'];
+                res.send(JSON.stringify({ success: true, lecturer: data }));
             } else {
                 res.send(JSON.stringify({ success: false, message: "User Not Found" }));
             }
