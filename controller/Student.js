@@ -125,7 +125,7 @@ router.route('/updateimage/:matricNo').patch((req, res) => {
 router.route('/deletestudent/:matricNo').delete((req, res) => {
     var matricNo = req.params.matricNo;
 
-    var sql = "DELETE * FROM student WHERE matricNo=?";
+    var sql = "DELETE FROM student WHERE matricNo=?";
 
     db.query(sql, [matricNo], function(err) {
         if (err) {

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-router.route('./view').get((req, res) => {
+router.route('/view').get((req, res) => {
 
     const sql = "SELECT * FROM lecturer";
 
@@ -30,6 +30,7 @@ router.route('/addlecturer').post((req, res) => {
     var department = req.body.department;
     var lecturerImage = req.body.lecturerImage;
     var lecturerImageFirebase = req.body.lecturerImageFirebase
+
 
     const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, status) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -115,12 +116,12 @@ router.route('/resetpassword').patch((req, res) => {
 });
 
 //delete lecturer account 
-router.route('/deletelecturer/:matricNo').delete((req, res) => {
-    var staffNo = req.params.staffNo;
+router.route('/deletelecturer/:staffNo').delete((req, res) => {
+    var staffNumber = req.params.staffNo;
 
-    var sql = "DELETE * FROM lecturer WHERE staffNo=?";
+    var sql = "DELETE FROM lecturer WHERE staffNo = ?";
 
-    db.query(sql, [staffNo], function(err) {
+    db.query(sql, [staffNumber], function(err) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
