@@ -29,5 +29,9 @@ app.use('/lecturer', lecturerRouter);
 const slotRouter = require('../WEMEET-DAPPS-BACKEND/controller/Slot');
 app.use('/slot', slotRouter);
 
+//get Booking controller
+const bookingRouter = require('../WEMEET-DAPPS-BACKEND/controller/Booking');
+app.use('/booking', bookingRouter);
+
 
 app.listen(5000, () => console.log('your server is running on port 5000'));

@@ -2,18 +2,18 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
+//to view all lecturer and lecturer_information
 router.route('/view').get((req, res) => {
 
-    const sql = "SELECT * FROM lecturer";
+    //both can be used
+    //const sql = "SELECT lecturer.*, lecturer_information.roomNo, lecturer_information.floorLvl FROM lecturer JOIN lecturer_information ON lecturer.staffNo = lecturer_information.staffNo";
+    const sql = "SELECT l.*, lf.roomNo, lf.floorLvl FROM lecturer l, lecturer_information lf WHERE l.staffNo = lf.staffNo";
 
     db.query(sql, (err, data) => {
         if (err) {
-            res.error(err.sqlMessage, res);
+            res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.status(200).json({
-                success: true,
-                lecturer: data
-            })
+            res.send(JSON.stringify({ success: true, lecturer: data }));
         }
     })
 })
@@ -34,11 +34,18 @@ router.route('/addlecturer').post((req, res) => {
 
     const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, status) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
-    db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, 2], function(error, data, fields) {
-        if (error) {
-            res.send(JSON.stringify({ success: false, message: error }));
+    db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, 2], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Lecturer Registered" }));
+            const sqlLecturerInformation = "INSERT INTO lecturer_information(staffNo, floorLvl, roomNo, academicQualification1,academicQualification2,academicQualification3,academicQualification4) VALUES (?,?,?,?,?,?,?)";
+            db.query(sqlLecturerInformation, [staffNo, "", "", "", "", "", ""], function(err) {
+                if (err) {
+                    res.send(JSON.stringify({ success: false, message: err }));
+                } else {
+                    res.send(JSON.stringify({ success: true, message: "Lecturer Registered" }));
+                }
+            });
         }
     })
 })
@@ -47,7 +54,7 @@ router.route('/addlecturer').post((req, res) => {
 router.route('/getimage/:staffNo').get((req, res) => {
     var staffNo = req.params.staffNo;
 
-    var sql = "SELECT lecturerImageFirebase FROM lecturer WHERE staffNo=?";
+    const sql = "SELECT lecturerImageFirebase FROM lecturer WHERE staffNo=?";
 
     db.query(sql, [staffNo], function(err, data) {
         if (err) {
@@ -63,7 +70,7 @@ router.route('/updateimage/:staffNo').patch((req, res) => {
     var staffNo = req.params.staffNo;
     var lecturerImage = req.body.lecturerImage;
 
-    var sql = "UPDATE lecturer SET lecturerImage = ? WHERE staffNo=?";
+    const sql = "UPDATE lecturer SET lecturerImage = ? WHERE staffNo=?";
 
     db.query(sql, [lecturerImage, staffNo], function(err) {
         if (err) {
@@ -104,7 +111,7 @@ router.route('/resetpassword').patch((req, res) => {
     var lecturerEmail = req.body.lecturerEmail;
     var lecturerPassword = req.body.lecturerPassword;
 
-    var sql = "UPDATE lecturer SET lecturerPassword = ? WHERE lecturerEmail = ?";
+    const sql = "UPDATE lecturer SET lecturerPassword = ? WHERE lecturerEmail = ?";
 
     db.query(sql, [lecturerPassword, lecturerEmail], function(error) {
         if (error) {
@@ -119,7 +126,7 @@ router.route('/resetpassword').patch((req, res) => {
 router.route('/deletelecturer/:staffNo').delete((req, res) => {
     var staffNumber = req.params.staffNo;
 
-    var sql = "DELETE FROM lecturer WHERE staffNo = ?";
+    const sql = "DELETE FROM lecturer WHERE staffNo = ?";
 
     db.query(sql, [staffNumber], function(err) {
         if (err) {
@@ -151,6 +158,50 @@ router.route('/getlecturer/:staffNo').get((req, res) => {
         }
     });
 })
+
+//update lecturer_information
+router.route('/lecturerinformation/:staffNo').patch((req, res) => {
+    var staffNo = req.params.staffNo;
+    var floorLvl = req.body.floorLvl;
+    var roomNo = req.body.roomNo;
+    var academicQualification1 = req.body.academicQualification1;
+    var academicQualification2 = req.body.academicQualification2;
+    var academicQualification3 = req.body.academicQualification3;
+    var academicQualification4 = req.body.academicQualification4;
+
+    var sql = "UPDATE lecturer_information SET floorLvl = ?, roomNo = ?, academicQualification1 = ?,academicQualification2 = ?, academicQualification3 = ?, academicQualification4 = ? WHERE staffNo = ?";
+
+    db.query(sql, [floorLvl, roomNo, academicQualification1, academicQualification2, academicQualification3, academicQualification4, staffNo], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "Lecturer Information Successfully Update" }));
+        }
+    })
+});
+
+//get information for lecturer profile
+router.route('/lecturerprofile/:staffNo').get((req, res) => {
+    var staffNumber = req.params.staffNo;
+
+    const sql = "SELECT l.lecturerImage, lf.* FROM lecturer l, lecturer_information lf WHERE l.staffNo = lf.staffNo AND l.staffNo = ?";
+
+    db.query(sql, [staffNumber], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                //lecturer: data is VERY IMPORTANT!!
+                //IF NOT WE CANNOT PASS TO THE FLUTTER OBJECT 
+                //e.g lecturerResponse['lecturer'][0]['staffNo'];
+                //MAKRE SURE data is not data[0]
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: false, message: "Empty Data" }));
+            }
+        }
+    });
+});
 
 
 module.exports = router;

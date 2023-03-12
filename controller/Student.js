@@ -7,12 +7,9 @@ router.route('/view').get((req, res) => {
     const sql = 'SELECT * FROM student ';
     db.query(sql, (err, data) => {
         if (err) {
-            res.error(err.sqlMessage, res);
+            res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.status(200).json({
-                success: true,
-                student: data
-            });
+            res.send(JSON.stringify({ success: true, student: data }));
         }
     })
 })
@@ -23,7 +20,7 @@ router.route('/studentlogin').post((req, res) => {
     var studEmail = req.body.studEmail;
     var studPassword = req.body.studPassword;
 
-    var sql = "SELECT * FROM student WHERE studEmail=? AND studPassword=?";
+    const sql = "SELECT * FROM student WHERE studEmail=? AND studPassword=?";
 
     if (studEmail != "" && studPassword != "") {
         db.query(sql, [studEmail, studPassword], function(err, data) {
@@ -58,7 +55,7 @@ router.route('/addstudent').post((req, res) => {
     var studImageFirebase = req.body.studImageFirebase;
 
     //create query
-    var sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
     //call database to insert so add or include database
     db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, 1], function(error, data) {
@@ -78,7 +75,7 @@ router.route('/resetpassword').patch((req, res) => {
     var studEmail = req.body.studEmail;
     var studPassword = req.body.studPassword;
 
-    var sql = "UPDATE student SET studPassword = ? WHERE studEmail = ?";
+    const sql = "UPDATE student SET studPassword = ? WHERE studEmail = ?";
 
     db.query(sql, [studPassword, studEmail], function(error) {
         if (error) {
@@ -93,7 +90,7 @@ router.route('/resetpassword').patch((req, res) => {
 router.route('/getimage/:matricNo').get((req, res) => {
     var matricNo = req.params.matricNo;
 
-    var sql = "SELECT studImageFirebase FROM student WHERE matricNo=?";
+    const sql = "SELECT studImageFirebase FROM student WHERE matricNo=?";
 
     db.query(sql, [matricNo], function(err, data) {
         if (err) {
@@ -109,7 +106,7 @@ router.route('/updateimage/:matricNo').patch((req, res) => {
     var matricNo = req.params.matricNo;
     var studImage = req.body.studImage;
 
-    var sql = "UPDATE student SET studImage = ? WHERE matricNo=?";
+    const sql = "UPDATE student SET studImage = ? WHERE matricNo=?";
 
     db.query(sql, [studImage, matricNo], function(err) {
         if (err) {
@@ -125,7 +122,7 @@ router.route('/updateimage/:matricNo').patch((req, res) => {
 router.route('/deletestudent/:matricNo').delete((req, res) => {
     var matricNo = req.params.matricNo;
 
-    var sql = "DELETE FROM student WHERE matricNo=?";
+    const sql = "DELETE FROM student WHERE matricNo=?";
 
     db.query(sql, [matricNo], function(err) {
         if (err) {
