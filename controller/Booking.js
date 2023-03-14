@@ -51,13 +51,28 @@ router.route('/addbook').post((req, res) => {
             }
         }
     });
-    // db.query(sql, [matricNo, staffNo, numberOfStudents, date, time, "Appending"], function(err) {
-    //     if (err) {
-    //         res.send(JSON.stringify({ success: false, message: err }));
-    //     } else {
-    //         res.send(JSON.stringify({ success: true, message: "Booking Successfully Added" }));
-    //     }
-    // });
+
+});
+
+//get booked slot
+router.route('/booked/:staffNo/:date').get((req, res) => {
+    var date = req.params.date;
+    var staffNo = req.params.staffNo;
+
+
+    const sql = "SELECT statusBooking, date, time from booking WHERE staffNo = ? AND  date = ?";
+
+    db.query(sql, [staffNo, date], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, booking: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "" }));
+            }
+        }
+    });
 });
 
 module.exports = router;
