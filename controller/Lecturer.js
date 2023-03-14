@@ -203,5 +203,23 @@ router.route('/lecturerprofile/:staffNo').get((req, res) => {
     });
 });
 
+//get information for booking page in book2
+router.route('/book2/:staffNo').get((req, res) => {
+    var staffNumber = req.params.staffNo;
+
+    const sql = "SELECT l.*, lf.roomNo, lf.floorLvl FROM lecturer l, lecturer_information lf WHERE l.staffNo = lf.staffNo AND l.staffNo = ?";
+
+    db.query(sql, [staffNumber], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
 
 module.exports = router;
