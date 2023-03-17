@@ -6,10 +6,10 @@ const db = require('../config/db');
 router.route('/login').post((req, res) => {
     var password = req.body.password;
 
-    var sql = "SELECT password FROM admin WHERE password=?";
+    const sql = "SELECT password FROM admin WHERE password=?";
 
     if (password !== "") {
-        db.query(sql, [password], function(err, data, fields) {
+        db.query(sql, [password], function(err, data) {
             if (err) {
                 res.send(JSON.stringify({ success: false, message: err }));
             } else {
@@ -24,5 +24,6 @@ router.route('/login').post((req, res) => {
         res.send(JSON.stringify({ success: false, message: 'Password required!' }));
     }
 });
+
 
 module.exports = router;

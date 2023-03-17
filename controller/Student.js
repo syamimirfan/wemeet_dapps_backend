@@ -155,5 +155,39 @@ router.route('/getstudent/:matricNo').get((req, res) => {
     });
 })
 
+//get lecturer for homepage
+router.route('/lecturer').get((req, res) => {
+    const sql = "SELECT * FROM lecturer";
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: false, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+//get lecutrer information for see more in homepage
+router.route('/lecturerinformation/:staffNo').get((req, res) => {
+    var staffNo = req.params.staffNo;
+
+    const sql = "SELECT l.*, lf.* FROM lecturer l, lecturer_information lf WHERE l.staffNo = ? AND l.staffNo = lf.staffNo";
+
+    db.query(sql, [staffNo], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
 
 module.exports = router;
