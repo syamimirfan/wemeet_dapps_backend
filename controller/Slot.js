@@ -57,11 +57,16 @@ router.route('/editslot/:staffNo').patch((req, res) => {
 
     const sql = "UPDATE slot SET slot1 = ?, slot2 = ?, slot3 = ?, slot4 = ?, slot5 = ? WHERE staffNo = ? AND day = ? ";
 
-    db.query(sql, [slotOne, slotTwo, slotThree, slotFour, slotFive, staffNumber, days], function(err) {
+    db.query(sql, [slotOne, slotTwo, slotThree, slotFour, slotFive, staffNumber, days], function(err, data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Slot Successfully Update" }));
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Slot Successfully Update" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+
         }
     });
 });

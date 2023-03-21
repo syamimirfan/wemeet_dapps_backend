@@ -29,7 +29,7 @@ router.route('/studentlogin').post((req, res) => {
 
             } else {
                 if (data.length > 0) {
-                    res.send(JSON.stringify({ success: true, student: data, status: data[0]['status'] }));
+                    res.send(JSON.stringify({ success: true, student: data, status: data[0]['status'], tokenAddress: data[0]['tokenAddress'] }));
                 } else {
                     res.send(JSON.stringify({ success: false, message: 'Empty Data' }));
                 }
@@ -183,6 +183,26 @@ router.route('/lecturerinformation/:staffNo').get((req, res) => {
         } else {
             if (data.length > 0) {
                 res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+//update token address when student is first time login
+router.route('/updatetoken/:matricNo').patch((req, res) => {
+    var matricNo = req.params.matricNo;
+    var tokenAddress = req.body.tokenAddress;
+
+    const sql = "UPDATE student SET tokenAddress = ? WHERE matricNo = ?";
+
+    db.query(sql, [tokenAddress, matricNo], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Token Address Successfully Update" }));
             } else {
                 res.send(JSON.stringify({ success: true, message: "Empty Data" }));
             }

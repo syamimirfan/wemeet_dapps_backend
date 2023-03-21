@@ -119,11 +119,15 @@ router.route('/reject/:bookingId').patch((req, res) => {
 
     const sql = "UPDATE booking SET statusBooking = 'Rejected' WHERE bookingId = ?";
 
-    db.query(sql, [bookingId], function(err) {
+    db.query(sql, [bookingId], function(err, data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Update Rejected Status" }));
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Update Rejected Status" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
         }
     });
 });
@@ -134,11 +138,15 @@ router.route('/accept/:bookingId').patch((req, res) => {
 
     const sql = "UPDATE booking SET statusBooking = 'Accepted' WHERE bookingId = ?";
 
-    db.query(sql, [bookingId], function(err) {
+    db.query(sql, [bookingId], function(err, data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Update Accepted Status" }));
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Update Accepted Status" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
         }
     });
 });
@@ -180,11 +188,16 @@ router.route('/updatebooking/:bookingId').patch((req, res) => {
             if (data.length > 0) {
                 res.send(JSON.stringify({ success: true, student: data, message: "Slot Booked" }));
             } else {
-                db.query(sql, [numberOfStudents, date, time, bookingId], function(err) {
+                db.query(sql, [numberOfStudents, date, time, bookingId], function(err, data) {
                     if (err) {
                         res.send(JSON.stringify({ success: false, message: err }));
                     } else {
-                        res.send(JSON.stringify({ success: true, message: "Book Slot Updated" }));
+                        if (data.affectedRows > 0) {
+                            res.send(JSON.stringify({ success: true, message: "Book Slot Updated" }));
+                        } else {
+                            res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+                        }
+
                     }
                 });
             }

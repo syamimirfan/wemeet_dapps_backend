@@ -171,11 +171,16 @@ router.route('/lecturerinformation/:staffNo').patch((req, res) => {
 
     var sql = "UPDATE lecturer_information SET floorLvl = ?, roomNo = ?, academicQualification1 = ?,academicQualification2 = ?, academicQualification3 = ?, academicQualification4 = ? WHERE staffNo = ?";
 
-    db.query(sql, [floorLvl, roomNo, academicQualification1, academicQualification2, academicQualification3, academicQualification4, staffNo], function(err) {
+    db.query(sql, [floorLvl, roomNo, academicQualification1, academicQualification2, academicQualification3, academicQualification4, staffNo], function(err, data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Lecturer Information Successfully Update" }));
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Lecturer Information Successfully Update" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+
         }
     })
 });
