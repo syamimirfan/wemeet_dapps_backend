@@ -122,21 +122,6 @@ router.route('/resetpassword').patch((req, res) => {
     });
 });
 
-//delete lecturer account 
-router.route('/deletelecturer/:staffNo').delete((req, res) => {
-    var staffNumber = req.params.staffNo;
-
-    const sql = "DELETE FROM lecturer WHERE staffNo = ?";
-
-    db.query(sql, [staffNumber], function(err) {
-        if (err) {
-            res.send(JSON.stringify({ success: false, message: err }));
-        } else {
-            res.send(JSON.stringify({ success: true, message: "Account Successfully Deleted" }));
-        }
-    });
-});
-
 //get lecturer detail by passing staffNo
 router.route('/getlecturer/:staffNo').get((req, res) => {
     var staffNumber = req.params.staffNo;
@@ -226,5 +211,55 @@ router.route('/book2/:staffNo').get((req, res) => {
         }
     });
 });
+
+//get count of lecturer in admin
+router.route('/totallecturer').get((req, res) => {
+    const sql = "SELECT COUNT(*) FROM lecturer";
+
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+//select lecturer for recent lecturer in admin
+router.route('/recentlecturer').get((req, res) => {
+    const sql = "SELECT * FROM lecturer";
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, lecturer: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+
+//delete lecturer account in admin
+router.route('/deletelecturer/:staffNo').delete((req, res) => {
+    var staffNumber = req.params.staffNo;
+
+    const sql = "DELETE FROM lecturer WHERE staffNo = ?";
+
+    db.query(sql, [staffNumber], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "Account Successfully Deleted" }));
+        }
+    });
+});
+
 
 module.exports = router;

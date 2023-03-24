@@ -117,22 +117,6 @@ router.route('/updateimage/:matricNo').patch((req, res) => {
     })
 });
 
-
-//delete student account 
-router.route('/deletestudent/:matricNo').delete((req, res) => {
-    var matricNo = req.params.matricNo;
-
-    const sql = "DELETE FROM student WHERE matricNo=?";
-
-    db.query(sql, [matricNo], function(err) {
-        if (err) {
-            res.send(JSON.stringify({ success: false, message: err }));
-        } else {
-            res.send(JSON.stringify({ success: true, message: "Account Successfully Deleted" }));
-        }
-    });
-});
-
 //get student detail by passing matricNo
 router.route('/getstudent/:matricNo').get((req, res) => {
     var matricNumber = req.params.matricNo;
@@ -171,7 +155,7 @@ router.route('/lecturer').get((req, res) => {
     });
 });
 
-//get lecutrer information for see more in homepage
+//get lecturer information for see more in homepage
 router.route('/lecturerinformation/:staffNo').get((req, res) => {
     var staffNo = req.params.staffNo;
 
@@ -209,5 +193,55 @@ router.route('/updatetoken/:matricNo').patch((req, res) => {
         }
     });
 });
+
+//get count of student in admin
+router.route('/totalstudent').get((req, res) => {
+    const sql = "SELECT COUNT(*) FROM student";
+
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, student: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+//select student for recent student in admin
+router.route('/recentstudent').get((req, res) => {
+    const sql = "SELECT * FROM student";
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, student: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
+//delete student account in admin
+router.route('/deletestudent/:matricNo').delete((req, res) => {
+    var matricNo = req.params.matricNo;
+
+    const sql = "DELETE FROM student WHERE matricNo=?";
+
+    db.query(sql, [matricNo], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "Account Successfully Deleted" }));
+        }
+    });
+});
+
+
 
 module.exports = router;

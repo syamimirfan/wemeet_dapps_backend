@@ -74,11 +74,15 @@ router.route('/editslot/:staffNo').patch((req, res) => {
 //delete all the slot
 router.route('/deleteslot').delete((req, res) => {
     const sql = "DELETE FROM slot";
-    db.query(sql, function(err) {
+    db.query(sql, function(err, data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "All Slot Delete" }));
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "All Slot Delete" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
         }
     });
 });
