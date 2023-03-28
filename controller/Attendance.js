@@ -59,7 +59,7 @@ router.route('/getattendance/:matricNo').get((req, res) => {
     });
 });
 
-//to delete attendance in student
+//to delete attendance in student that attend the meeting
 router.route('/deleteattendance/:attendanceId').delete((req, res) => {
     var attendanceId = req.params.attendanceId;
 
@@ -74,5 +74,23 @@ router.route('/deleteattendance/:attendanceId').delete((req, res) => {
     });
 })
 
+
+//get attendance for student that attend the meeting in admin
+router.route('/givetoken').get((req, res) => {
+
+    const sql = "SELECT s.*, a.* FROM student s, attendance a WHERE a.status = 'Attend' AND s.matricNo = a.matricNo";
+
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, attendance: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
 
 module.exports = router;

@@ -149,7 +149,7 @@ router.route('/lecturer').get((req, res) => {
             if (data.length > 0) {
                 res.send(JSON.stringify({ success: true, lecturer: data }));
             } else {
-                res.send(JSON.stringify({ success: false, message: "Empty Data" }));
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
             }
         }
     });
