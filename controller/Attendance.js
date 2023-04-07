@@ -10,9 +10,9 @@ router.route('/addattendance/absent').post((req, res) => {
     var date = req.body.date;
     var time = req.body.time;
 
-    const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time) VALUES(?,?,?,?,?,?)";
+    const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time,statusReward) VALUES(?,?,?,?,?,?,?)";
 
-    db.query(sql, [matricNo, staffNo, "Absent", numberOfStudents, date, time], function(err) {
+    db.query(sql, [matricNo, staffNo, "Absent", numberOfStudents, date, time, "Not Send"], function(err) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
@@ -29,9 +29,9 @@ router.route('/addattendance/attend').post((req, res) => {
     var date = req.body.date;
     var time = req.body.time;
 
-    const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time) VALUES(?,?,?,?,?,?)";
+    const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time, statusReward) VALUES(?,?,?,?,?,?,?)";
 
-    db.query(sql, [matricNo, staffNo, "Attend", numberOfStudents, date, time], function(err) {
+    db.query(sql, [matricNo, staffNo, "Attend", numberOfStudents, date, time, "Not Send"], function(err) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
@@ -91,6 +91,24 @@ router.route('/givetoken').get((req, res) => {
             }
         }
     });
+});
+
+//to update status reward
+router.route('/statusreward/:attendanceId').patch((req, res) => {
+    var attendanceId = req.params.attendanceId;
+
+    const sql = "UPDATE attendance SET statusReward = ? WHERE attendanceId = ?";
+    db.query(sql, ["Send", attendanceId], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Status Reward Updated" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    })
 });
 
 module.exports = router;
