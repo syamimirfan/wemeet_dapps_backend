@@ -41,5 +41,9 @@ app.use('/attendance', attendanceRouter);
 const hashController = require('../WEMEET-DAPPS-BACKEND/controller/Hash');
 app.use('/hash', hashController);
 
+//get Chat controller
+const chatController = require('../WEMEET-DAPPS-BACKEND/controller/Chat');
+app.use('/chat', chatController);
+
 
 app.listen(5000, () => console.log('your server is running on port 5000'));
