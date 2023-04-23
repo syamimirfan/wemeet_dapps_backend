@@ -94,5 +94,19 @@ router.route('/getmessage/:matricNo/:staffNo').get((req,res) => {
     });
 });
 
+//delete chat
+router.route('/deletechat/:chatId').delete((req, res) => {
+    var chatId = req.params.chatId;
+
+    const sql = "DELETE FROM chat WHERE chatId = ?";
+
+    db.query(sql, [chatId], function(err) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            res.send(JSON.stringify({ success: true, message: "Chat Successfully Deleted" }));
+        }
+    });
+});
 
 module.exports = router;
