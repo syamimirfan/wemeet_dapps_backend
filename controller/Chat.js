@@ -109,4 +109,40 @@ router.route('/deletechat/:chatId').delete((req, res) => {
     });
 });
 
+//to get lecturer in chat module for students
+router.route('/chatstudent').get((req, res) => {
+      
+      const sql = "SELECT staffNo, lecturerImage, lecturerName FROM lecturer";
+
+      db.query(sql, function(err,data) {
+          if(err){
+            res.send(JSON.stringify({ success: false, message: err }));
+          }else{
+            if(data.length > 0) {
+                res.send(JSON.stringify({ success: true, chat: data }));
+            }else{
+                res.send(JSON.stringify({ success: true, message: "No Lecturer Available" }));
+            }
+          }
+      });
+});
+
+//to get student in chat module for lecturers
+router.route('/chatlecturer').get((req, res) => {
+      
+    const sql = "SELECT matricNo, studImage, studName FROM student";
+
+    db.query(sql, function(err,data) {
+        if(err){
+          res.send(JSON.stringify({ success: false, message: err }));
+        }else{
+          if(data.length > 0) {
+              res.send(JSON.stringify({ success: true, chat: data }));
+          }else{
+              res.send(JSON.stringify({ success: true, message: "No Student Available" }));
+          }
+        }
+    });
+});
+
 module.exports = router;
