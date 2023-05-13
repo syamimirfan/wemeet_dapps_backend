@@ -31,7 +31,7 @@ router.route('/addbook').post((req, res) => {
     var date = req.body.date;
     var time = req.body.time;
 
-    const sqlIsBooked = "SELECT s.studName, s.matricNo, b.* FROM student s, booking b WHERE time = ? AND date = ? AND staffNo = ? AND s.matricNo = b.matricNo";
+    const sqlIsBooked = "SELECT s.studName, s.matricNo, b.* FROM student s, booking b WHERE time = ? AND date = ? AND staffNo = ? AND s.matricNo = b.matricNo AND statusBooking = 'Appending' AND statusBooking = 'Accepted'";
     const sql = "INSERT INTO booking(matricNo, staffNo, numberOfStudents, date, time, statusBooking) VALUES(?,?,?,?,?,?)";
 
     db.query(sqlIsBooked, [time, date, staffNo], function(err, data) {
@@ -178,7 +178,7 @@ router.route('/updatebooking/:bookingId').patch((req, res) => {
     var date = req.body.date;
     var time = req.body.time;
 
-    const sqlIsBooked = "SELECT s.studName, s.matricNo, b.* FROM student s, booking b WHERE time = ? AND date = ? AND staffNo = ? AND s.matricNo = b.matricNo";
+    const sqlIsBooked = "SELECT s.studName, s.matricNo, b.* FROM student s, booking b WHERE time = ? AND date = ? AND staffNo = ? AND s.matricNo = b.matricNo AND statusBooking = 'Appending' AND statusBooking = 'Accepted'";
     const sql = "UPDATE booking SET numberOfStudents = ?, date = ?, time = ? WHERE bookingId = ?";
 
     db.query(sqlIsBooked, [time, date, staffNo], function(err, data) {
