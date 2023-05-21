@@ -55,7 +55,7 @@ router.route('/addstudent').post((req, res) => {
     var studImageFirebase = req.body.studImageFirebase;
 
     //create query
-    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),?)";
 
     //call database to insert so add or include database
     db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, 1], function(error, data) {
@@ -242,6 +242,21 @@ router.route('/deletestudent/:matricNo').delete((req, res) => {
     });
 });
 
+//to display 5 new account registered in dashboard for recent student
+router.route('/dashboardstudent').get((req, res) => {
+    const sql = "SELECT * FROM student ORDER BY STR_TO_DATE(createdDate,  '%Y-%m-%d %H:%i:%s') DESC LIMIT 5";
 
+    db.query(sql, function(err,data) {
+        if(err){
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, student: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
 
 module.exports = router;
