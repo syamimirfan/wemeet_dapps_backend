@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
 //to view all lecturer and lecturer_information
 router.route('/view').get((req, res) => {
@@ -25,29 +26,37 @@ router.route('/addlecturer').post((req, res) => {
     var icNumber = req.body.icNumber;
     var lecturerTelephoneNo = req.body.lecturerTelephoneNo;
     var lecturerEmail = req.body.lecturerEmail;
-    var lecturerPassword = icNumber;
     var faculty = req.body.faculty;
     var department = req.body.department;
     var lecturerImage = req.body.lecturerImage;
     var lecturerImageFirebase = req.body.lecturerImageFirebase
 
+     // Generate salt and hash for the password
+  bcrypt.hash(icNumber, 10, (err, hash) => {
+    if (err) {
+      res.send(JSON.stringify({success: false, message: err}))
+    } else {
+      const lecturerPassword = hash;
 
-    const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, status) VALUES(?,?,?,?,?,?,?,?,?,?,NOW(),?)";
+      const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, status) VALUES(?,?,?,?,?,?,?,?,?,?,NOW(),?)";
 
-    db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, 2], function(err) {
-        if (err) {
-            res.send(JSON.stringify({ success: false, message: err }));
-        } else {
-            const sqlLecturerInformation = "INSERT INTO lecturer_information(staffNo, floorLvl, roomNo, academicQualification1,academicQualification2,academicQualification3,academicQualification4) VALUES (?,?,?,?,?,?,?)";
-            db.query(sqlLecturerInformation, [staffNo, "", "", "", "", "", ""], function(err) {
-                if (err) {
-                    res.send(JSON.stringify({ success: false, message: err }));
-                } else {
-                    res.send(JSON.stringify({ success: true, message: "Lecturer Registered" }));
-                }
-            });
-        }
-    })
+      db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, 2], function(err) {
+          if (err) {
+              res.send(JSON.stringify({ success: false, message: err }));
+          } else {
+              const sqlLecturerInformation = "INSERT INTO lecturer_information(staffNo, floorLvl, roomNo, academicQualification1,academicQualification2,academicQualification3,academicQualification4) VALUES (?,?,?,?,?,?,?)";
+              db.query(sqlLecturerInformation, [staffNo, "", "", "", "", "", ""], function(err) {
+                  if (err) {
+                      res.send(JSON.stringify({ success: false, message: err }));
+                  } else {
+                      res.send(JSON.stringify({ success: true, message: "Lecturer Registered" }));
+                  }
+              });
+          }
+      })
+    }
+  });
+
 })
 
 //to get lecturerImage link from database to counter the file same name from firebase
@@ -87,20 +96,36 @@ router.route('/lecturerlogin').post((req, res) => {
     var lecturerEmail = req.body.lecturerEmail;
     var lecturerPassword = req.body.lecturerPassword;
 
-    const sql = "SELECT * FROM lecturer WHERE lecturerEmail=? AND lecturerPassword=?";
+    const sql = "SELECT * FROM lecturer WHERE lecturerEmail=?";
 
-    if (lecturerEmail != "" && lecturerPassword != "") {
-        db.query(sql, [lecturerEmail, lecturerPassword], function(error, data, fields) {
-            if (error) {
-                res.send(JSON.stringify({ success: false, message: error }));
+    if (lecturerEmail && lecturerPassword) {
+        db.query(sql, [lecturerEmail, lecturerPassword], function(err, data) {
+            if (err) {
+                res.send(JSON.stringify({ success: false, message: err }));
             } else {
-                if (data.length > 0) {
-                    res.send(JSON.stringify({ success: true, lecturer: data, status: data[0]['status'] }));
+                if (data.length  > 0) {
+                    const storedHashedPassword = data[0].lecturerPassword;
+
+                    bcrypt.compare(lecturerPassword, storedHashedPassword, (error, result) => {
+                      if (error) {
+                        res.send(JSON.stringify({success: false, message: error }));
+                      } else if (result) {
+                        res.send(JSON.stringify({
+                          success: true,
+                          lecturer: data,
+                          status: data[0].status,
+                        }));
+                      } else {
+                        res.send(JSON.stringify({ success: false, message: 'Invalid email or password' }));
+                      }
+                    });
+
                 } else {
-                    res.send(JSON.stringify({ success: false, message: "Empty Data" }));
+                    res.send(JSON.stringify({ success: false, message: 'Empty Data' }));
                 }
             }
         });
+
     } else {
         res.send(JSON.stringify({ sucess: false, message: "Email and password required" }))
     }
@@ -111,15 +136,22 @@ router.route('/resetpassword').patch((req, res) => {
     var lecturerEmail = req.body.lecturerEmail;
     var lecturerPassword = req.body.lecturerPassword;
 
-    const sql = "UPDATE lecturer SET lecturerPassword = ? WHERE lecturerEmail = ?";
-
-    db.query(sql, [lecturerPassword, lecturerEmail], function(error) {
-        if (error) {
-            res.send(JSON.stringify({ success: false, message: error }));
+    bcrypt.hash(lecturerPassword, 10, (err, hashedPassword) => {
+        if (err) {
+            res.send(JSON.stringify({success: false, message: 'An error occurred during password reset' }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Password Successfully Update" }));
+          const sql = 'UPDATE lecturer SET lecturerPassword = ? WHERE lecturerEmail = ?';
+    
+          db.query(sql, [hashedPassword, lecturerEmail], function(error) {
+            if (error) {
+                res.send(JSON.stringify({ success: false, message: error }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: 'Password successfully updated' }));
+            }
+          });
         }
-    });
+      }); 
+
 });
 
 //get lecturer detail by passing staffNo

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
 
 router.route('/view').get((req, res) => {
@@ -20,16 +21,31 @@ router.route('/studentlogin').post((req, res) => {
     var studEmail = req.body.studEmail;
     var studPassword = req.body.studPassword;
 
-    const sql = "SELECT * FROM student WHERE studEmail=? AND studPassword=?";
+    const sql = "SELECT * FROM student WHERE studEmail=?";
 
-    if (studEmail != "" && studPassword != "") {
+    if (studEmail && studPassword ) {
         db.query(sql, [studEmail, studPassword], function(err, data) {
             if (err) {
                 res.send(JSON.stringify({ success: false, message: err }));
-
             } else {
-                if (data.length > 0) {
-                    res.send(JSON.stringify({ success: true, student: data, status: data[0]['status'], tokenAddress: data[0]['tokenAddress'] }));
+                if (data.length  > 0) {
+                    const storedHashedPassword = data[0].studPassword;
+
+                    bcrypt.compare(studPassword, storedHashedPassword, (error, result) => {
+                      if (error) {
+                        res.send(JSON.stringify({success: false, message: error }));
+                      } else if (result) {
+                        res.send(JSON.stringify({
+                          success: true,
+                          student: data,
+                          status: data[0].status,
+                          tokenAddress: data[0].tokenAddress
+                        }));
+                      } else {
+                        res.send(JSON.stringify({ success: false, message: 'Invalid email or password' }));
+                      }
+                    });
+
                 } else {
                     res.send(JSON.stringify({ success: false, message: 'Empty Data' }));
                 }
@@ -48,11 +64,17 @@ router.route('/addstudent').post((req, res) => {
     var studName = req.body.studName;
     var studTelephoneNo = req.body.studTelephoneNo;
     var studEmail = req.body.studEmail;
-    var studPassword = icNumber;
     var faculty = req.body.faculty;
     var program = req.body.program;
     var studImage = req.body.studImage;
     var studImageFirebase = req.body.studImageFirebase;
+
+    // Generate salt and hash for the password
+  bcrypt.hash(icNumber, 10, (err, hash) => {
+    if (err) {
+      res.send(JSON.stringify({success: false, message: err}))
+    } else {
+      const studPassword = hash;
 
     //create query
     const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),?)";
@@ -67,6 +89,8 @@ router.route('/addstudent').post((req, res) => {
             res.send(JSON.stringify({ success: true, message: 'Student Registered' }));
         }
     });
+    }
+  });
 
 });
 
@@ -75,15 +99,22 @@ router.route('/resetpassword').patch((req, res) => {
     var studEmail = req.body.studEmail;
     var studPassword = req.body.studPassword;
 
-    const sql = "UPDATE student SET studPassword = ? WHERE studEmail = ?";
-
-    db.query(sql, [studPassword, studEmail], function(error) {
-        if (error) {
-            res.send(JSON.stringify({ success: false, message: error }));
+    bcrypt.hash(studPassword, 10, (err, hashedPassword) => {
+        if (err) {
+            res.send(JSON.stringify({success: false, message: 'An error occurred during password reset' }));
         } else {
-            res.send(JSON.stringify({ success: true, message: "Password Successfully Update" }));
+          const sql = 'UPDATE student SET studPassword = ? WHERE studEmail = ?';
+    
+          db.query(sql, [hashedPassword, studEmail], function(error) {
+            if (error) {
+                res.send(JSON.stringify({ success: false, message: error }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: 'Password successfully updated' }));
+            }
+          });
         }
-    });
+      }); 
+
 });
 
 //to get studImage link from database to counter the file same name from firebase
