@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
+
 //student sending a message
 router.route('/studentmessage').post((req,res) => {
     var matricNo = req.body.matricNo;
@@ -13,7 +14,7 @@ router.route('/studentmessage').post((req,res) => {
     db.query(sql,[matricNo,staffNo,messageText], function(err) {
         if(err) {
             res.send(JSON.stringify({ success: false, message: err }));
-        }else {
+        }else {          
             res.send(JSON.stringify({ success: true, message: "Student Send Message!" }));
         }
     })
