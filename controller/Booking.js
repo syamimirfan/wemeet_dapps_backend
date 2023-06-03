@@ -206,6 +206,41 @@ router.route('/updatebooking/:bookingId').patch((req, res) => {
 
 })
 
+//update booking appointment for number of student and same date
+router.route('/updatenostudents/:bookingId').patch((req, res) => {
+    var bookingId = req.params.bookingId;
+    var numberOfStudents = req.body.numberOfStudents;
+
+    const sql = "UPDATE booking SET numberOfStudents = ? WHERE bookingId = ?";
+
+    db.query(sql, [numberOfStudents, bookingId], function(err,data) {
+        if(err){
+            res.send(JSON.stringify({ success: false, message: err }));
+        }else {
+            res.send(JSON.stringify({ success: true, message: "Book Slot Updated" }));
+        }
+    });
+});
+
+//get booking appointment by id
+router.route('/getbookingappointment/:bookingId').get((req, res) => {
+    var bookingId = req.params.bookingId;
+
+    const sql = "SELECT * FROM booking WHERE bookingId = ?";
+
+    db.query(sql, [bookingId], function (err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if(data.length > 0) {
+                res.send(JSON.stringify({ success: true, booking: data }));
+            }else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    })
+})
+
 //delete booking appointment in student and lecturer
 router.route('/deletebooking/:bookingId').delete((req, res) => {
     var bookingId = req.params.bookingId;

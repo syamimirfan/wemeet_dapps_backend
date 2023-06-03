@@ -10,7 +10,6 @@ app.use(cors({
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 //get Admin controller
 const adminRouter = require('../WEMEET-DAPPS-BACKEND/controller/Admin');
 app.use('/admin', adminRouter);
@@ -44,4 +43,21 @@ const chatController = require('../WEMEET-DAPPS-BACKEND/controller/Chat');
 app.use('/chat', chatController);
 
 
-app.listen(5000, () => console.log('your server is running on port 5000'));
+const server = app.listen(5000, () => console.log('your server is running on port 5000'));
+
+
+const io = require('socket.io')(server);
+
+io.on('connection', (socket) => {
+    console.log("Connected Successfully");
+    
+    socket.on('disconnect', () => {
+        console.log('Disconnected');
+    });
+
+    socket.on('message', (data) => {
+        console.log(data);
+        socket.broadcast.emit('message-receive', data);
+    });
+  
+});

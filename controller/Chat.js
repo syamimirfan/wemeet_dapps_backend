@@ -8,10 +8,11 @@ router.route('/studentmessage').post((req,res) => {
     var matricNo = req.body.matricNo;
     var staffNo  = req.body.staffNo;
     var messageText = req.body.messageText;
+    var sendTextTime = req.body.sendTextTime;
     
-    const sql = "INSERT INTO chat(matricNo, staffNo, messageText, sendTextTime, statusMessage) VALUES (?,?,?,NOW(),1)";
+    const sql = "INSERT INTO chat(matricNo, staffNo, messageText, sendTextTime, statusMessage) VALUES (?,?,?,?,1)";
 
-    db.query(sql,[matricNo,staffNo,messageText], function(err) {
+    db.query(sql,[matricNo,staffNo,messageText,sendTextTime], function(err) {
         if(err) {
             res.send(JSON.stringify({ success: false, message: err }));
         }else {          
@@ -25,10 +26,12 @@ router.route('/lecturermessage').post((req,res) => {
     var matricNo = req.body.matricNo;
     var staffNo  = req.body.staffNo;
     var messageText = req.body.messageText;
-    
-    const sql = "INSERT INTO chat(matricNo, staffNo, messageText, sendTextTime, statusMessage) VALUES (?,?,?,NOW(),2)";
+    var sendTextTime = req.body.sendTextTime;
 
-    db.query(sql,[matricNo,staffNo,messageText], function(err) {
+    
+    const sql = "INSERT INTO chat(matricNo, staffNo, messageText, sendTextTime, statusMessage) VALUES (?,?,?,?,2)";
+
+    db.query(sql,[matricNo,staffNo,messageText, sendTextTime], function(err) {
         if(err) {
             res.send(JSON.stringify({ success: false, message: err }));
         }else {
@@ -96,12 +99,12 @@ router.route('/getmessage/:matricNo/:staffNo').get((req,res) => {
 });
 
 //delete chat
-router.route('/deletechat/:chatId').delete((req, res) => {
-    var chatId = req.params.chatId;
+router.route('/deletechat/:messageText').delete((req, res) => {
+    var messageText = req.params.messageText;
 
-    const sql = "DELETE FROM chat WHERE chatId = ?";
+    const sql = "DELETE FROM chat WHERE messageText = ?";
 
-    db.query(sql, [chatId], function(err) {
+    db.query(sql, [messageText], function(err) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
