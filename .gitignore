@@ -1,3 +1,3 @@
 node_modules
 .env
-.push-notification-key
+config/push-notification-key.json
