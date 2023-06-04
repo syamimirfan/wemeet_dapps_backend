@@ -77,10 +77,10 @@ router.route('/addstudent').post((req, res) => {
       const studPassword = hash;
 
     //create query
-    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),?)";
+    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, firebaseToken, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?)";
 
     //call database to insert so add or include database
-    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, 1], function(error, data) {
+    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, "", 1], function(error, data) {
         if (error) {
             // if error send response here
             res.send(JSON.stringify({ success: false, message: error, image: studImageFirebase, messageDuplicated: true }));
@@ -205,6 +205,7 @@ router.route('/lecturerinformation/:staffNo').get((req, res) => {
     });
 });
 
+
 //update token address when student is first time login
 router.route('/updatetoken/:matricNo').patch((req, res) => {
     var matricNo = req.params.matricNo;
@@ -224,6 +225,26 @@ router.route('/updatetoken/:matricNo').patch((req, res) => {
         }
     });
 });
+
+//to update the firebase token
+router.route('/updatefirebasetoken/:matricNo').patch((req,res) => {
+    var matricNo = req.params.matricNo;
+    var firebaseToken = req.body.firebaseToken;
+    
+    const sql = "UPDATE student SET firebaseToken = ? WHERE matricNo = ?";
+    db.query(sql, [firebaseToken, matricNo], function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.affectedRows > 0) {
+                res.send(JSON.stringify({ success: true, message: "Firebase Token Successfully Update" }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
+            }
+        }
+    });
+});
+
 
 //get count of student in admin
 router.route('/totalstudent').get((req, res) => {
