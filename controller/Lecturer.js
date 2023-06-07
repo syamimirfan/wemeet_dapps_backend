@@ -31,6 +31,16 @@ router.route('/addlecturer').post((req, res) => {
     var lecturerImage = req.body.lecturerImage;
     var lecturerImageFirebase = req.body.lecturerImageFirebase
 
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
      // Generate salt and hash for the password
   bcrypt.hash(icNumber, 10, (err, hash) => {
     if (err) {
@@ -38,9 +48,9 @@ router.route('/addlecturer').post((req, res) => {
     } else {
       const lecturerPassword = hash;
 
-      const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, firebaseToken, status) VALUES(?,?,?,?,?,?,?,?,?,?,NOW(),?,?)";
+      const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, firebaseToken, status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-      db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, "", 2], function(err) {
+      db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, formattedDate, "", 2], function(err) {
           if (err) {
               res.send(JSON.stringify({ success: false, message: err }));
           } else {

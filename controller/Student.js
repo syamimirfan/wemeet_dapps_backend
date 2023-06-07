@@ -68,6 +68,15 @@ router.route('/addstudent').post((req, res) => {
     var program = req.body.program;
     var studImage = req.body.studImage;
     var studImageFirebase = req.body.studImageFirebase;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
     // Generate salt and hash for the password
   bcrypt.hash(icNumber, 10, (err, hash) => {
@@ -77,10 +86,10 @@ router.route('/addstudent').post((req, res) => {
       const studPassword = hash;
 
     //create query
-    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, firebaseToken, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,NOW(),?,?)";
+    const sqlQuery = "INSERT INTO student( matricNo, icNumber, tokenAddress, studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program,createdDate, firebaseToken, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     //call database to insert so add or include database
-    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, "", 1], function(error, data) {
+    db.query(sqlQuery, [matricNo, icNumber, "", studName, studTelephoneNo, studEmail, studPassword, studImage, studImageFirebase, faculty, program, formattedDate, "", 1], function(error, data) {
         if (error) {
             // if error send response here
             res.send(JSON.stringify({ success: false, message: error, image: studImageFirebase, messageDuplicated: true }));
