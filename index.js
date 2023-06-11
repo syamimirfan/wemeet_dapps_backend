@@ -45,7 +45,7 @@ app.use('/chat', chatController);
 
 const server = app.listen(5000, () => console.log('your server is running on port 5000'));
 
-
+//for socket in real time chat app
 const io = require('socket.io')(server);
 
 io.on('connection', (socket) => {
