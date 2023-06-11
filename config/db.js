@@ -8,6 +8,9 @@ var connection = mysql.createConnection({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    ssl: {
+        rejectUnauthorized: false
+    },
     charset: 'utf8mb4', //to input the emoji inside chat
 });
 

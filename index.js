@@ -43,7 +43,7 @@ const chatController = require('../WEMEET-DAPPS-BACKEND/controller/Chat');
 app.use('/chat', chatController);
 
 
-const server = app.listen(5000, () => console.log('your server is running on port 5000'));
+const server = app.listen(Number(process.env.PORT || 5000), "0.0.0.0", () => console.log(`your server is running on port http://localhost:${process.env.PORT}`));
 
 //for socket in real time chat app
 const io = require('socket.io')(server);
