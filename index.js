@@ -49,14 +49,14 @@ const server = app.listen(5000, () => console.log('your server is running on por
 const io = require('socket.io')(server);
 
 io.on('connection', (socket) => {
-    console.log("Connected Successfully");
+    // console.log("Connected Successfully");
     
-    socket.on('disconnect', () => {
-        console.log('Disconnected');
-    });
+    // socket.on('disconnect', () => {
+    //     console.log('Disconnected');
+    // });
 
     socket.on('message', (data) => {
-        console.log(data);
+        // console.log(data);
         socket.broadcast.emit('message-receive', data);
     });
   
