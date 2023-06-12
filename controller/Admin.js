@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
+//to login to the system
 router.route('/login').post((req, res) => {
     var password = req.body.password;
 
@@ -34,5 +35,22 @@ router.route('/login').post((req, res) => {
     }
 });
 
+//to get all the API for the token
+router.route('/getAPI').get((res,req) => {
+    const sql = "SELECT * FROM address";
+
+    db.query(sql, function(err, data) {
+        if (err) {
+            res.send(JSON.stringify({ success: false, message: err }));
+        } else {
+            if (data.length > 0) {
+                res.send(JSON.stringify({ success: true, address: data }));
+            } else {
+                res.send(JSON.stringify({ success: true, message: "" }));
+            }
+        }
+    }); 
+
+})
 
 module.exports = router;
