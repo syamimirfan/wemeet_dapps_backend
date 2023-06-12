@@ -15,7 +15,7 @@ require("dotenv").config();
 //     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
 //   }
 
-const push_notification_key = require("../config/push-notification-key.json");
+const push_notification_key = require("../config/push-notification-key.json"); 
 push_notification_key.type =  process.env.FIREBASE_TYPE;
 push_notification_key.project_id = process.env.FIREBASE_PROJECT_ID,
 push_notification_key.private_key_id = process.env.FIREBASE_PRIVATE_KEY_ID,
