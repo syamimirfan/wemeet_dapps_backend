@@ -36,7 +36,7 @@ router.route('/login').post((req, res) => {
 });
 
 //to get all the API for the token
-router.route('/getAPI').get((res,req) => {
+router.route('/getAPI').get((req,res) => {
     const sql = "SELECT * FROM address";
 
     db.query(sql, function(err, data) {
