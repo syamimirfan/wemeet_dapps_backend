@@ -11,6 +11,7 @@ var connection = mysql.createConnection({
     ssl: {
         rejectUnauthorized: false
     },
+    // socketPath: process.env.INSTANCE_CONNECTION_NAME,
     charset: 'utf8mb4', //to input the emoji inside chat
 });
 
