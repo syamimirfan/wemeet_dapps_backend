@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'wemeet-dapps-backend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_248E1952240B4550A5825FFAA63E53EE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F7C607F8D2C14D73B118406A119294CB }}
           package: .
