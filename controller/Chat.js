@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const FCM = require("../services/fcm");
 
 //student sending a message
 router.route('/studentmessage').post((req,res) => {
@@ -27,32 +26,7 @@ router.route('/studentmessage').post((req,res) => {
                 res.send(JSON.stringify({ success: false, message: err }));
              }else{
                 if(data.length > 0) {
-                    const studName = data[0]['studName'];
-
-                     db.query(sqlNotification,[staffNo], function(err, data) {
-                        if(err){
-                            res.send(JSON.stringify({ success: false, message: err }));
-                        }else {
-                            if(data.length > 0) {
-                                const firebaseToken = data[0]['firebaseToken'];
-                                let message = {
-                                    notification: {
-                                        title: "New Message From "+ studName,
-                                        body: messageText
-                                    },
-                                    token: firebaseToken,
-                                 };
-                
-                               FCM.send(message, function(err, data) {
-                                    if(err){
-                                      return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                    }else {
-                                      return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                    }
-                               });
-                            }
-                        }
-                     });
+                    res.send(JSON.stringify({ success: true, message: "Student Send Message", chat: data }));  
                 } else {
                     res.send(JSON.stringify({ success: true, message: "Empty Data" }));
                 }
@@ -87,32 +61,7 @@ router.route('/lecturermessage').post((req,res) => {
                 res.send(JSON.stringify({ success: false, message: err }));
              }else{
                 if(data.length > 0) {
-                    const lecturerName = data[0]['lecturerName'];
-
-                     db.query(sqlNotification,[matricNo], function(err, data) {
-                        if(err){
-                            res.send(JSON.stringify({ success: false, message: err }));
-                        }else {
-                            if(data.length > 0) {
-                                const firebaseToken = data[0]['firebaseToken'];
-                                let message = {
-                                    notification: {
-                                        title: "New Message From "+ lecturerName,
-                                        body: messageText
-                                    },
-                                    token: firebaseToken,
-                                 };
-                
-                               FCM.send(message, function(err, data) {
-                                    if(err){
-                                      return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                    }else {
-                                      return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                    }
-                               });
-                            }
-                        }
-                     });
+                    res.send(JSON.stringify({ success: true, message: "Lecturer Send Message", chat: data }));  
                 } else {
                     res.send(JSON.stringify({ success: true, message: "Empty Data" }));
                 }

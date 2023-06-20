@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const FCM = require("../services/fcm");
+
 
 //add attendance when student absent appointment from lecturer
 router.route('/addattendance/absent').post((req, res) => {
@@ -17,46 +17,7 @@ router.route('/addattendance/absent').post((req, res) => {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-                  //to send notification to specific student
-                  const sqlNotificationPerson = "SELECT lecturerName FROM lecturer WHERE staffNo = ?";
-                  const sqlNotification = "SELECT firebaseToken FROM student WHERE matricNo = ?";
-
-                  //to get student and firebaseToken 
-                  db.query(sqlNotificationPerson, [staffNo], function(err, data) {
-                      if(err) {
-                         res.send(JSON.stringify({ success: false, message: err }));
-                      }else{
-                         if(data.length > 0) {
-                             const lecturerName = data[0]['lecturerName'];     
-                              db.query(sqlNotification,[matricNo], function(err, data) {
-                                 if(err){
-                                     res.send(JSON.stringify({ success: false, message: err }));
-                                 }else {
-                                     if(data.length > 0) {
-                                         const firebaseToken = data[0]['firebaseToken'];
-                                         let message = {
-                                             notification: {
-                                                 title: "Sorry :) You are absent!!!",
-                                                 body: "Dr " + lecturerName + " has sign you absent. No reward will be given. Thank you."
-                                             },
-                                             token: firebaseToken,
-                                          };
-                         
-                                          FCM.send(message, function(err, data) {
-                                             if(err){
-                                               return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                             }else {
-                                               return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                             }
-                                        });
-                                     }
-                                 }
-                              });
-                         } else {
-                             res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                         }
-                      }
-                  });
+            res.send(JSON.stringify({ success: true, message: "Student Absent Appointment", attendance: data }));  
         }
     });
 });
@@ -75,46 +36,7 @@ router.route('/addattendance/attend').post((req, res) => {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
-            //to send notification to specific student
-            const sqlNotificationPerson = "SELECT lecturerName FROM lecturer WHERE staffNo = ?";
-            const sqlNotification = "SELECT firebaseToken FROM student WHERE matricNo = ?";
-
-            //to get student and firebaseToken 
-            db.query(sqlNotificationPerson, [staffNo], function(err, data) {
-                if(err) {
-                   res.send(JSON.stringify({ success: false, message: err }));
-                }else{
-                   if(data.length > 0) {
-                       const lecturerName = data[0]['lecturerName'];     
-                        db.query(sqlNotification,[matricNo], function(err, data) {
-                           if(err){
-                               res.send(JSON.stringify({ success: false, message: err }));
-                           }else {
-                               if(data.length > 0) {
-                                   const firebaseToken = data[0]['firebaseToken'];
-                                   let message = {
-                                       notification: {
-                                           title: "Congratulations, You are attend!!!",
-                                           body: "Dr " + lecturerName + " has sign you attend. 1 UTHM Token will transfer to your MetaMask account. Thank you."
-                                       },
-                                       token: firebaseToken,
-                                    };
-                   
-                                    FCM.send(message, function(err, data) {
-                                       if(err){
-                                         return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                       }else {
-                                         return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                       }
-                                  });
-                               }
-                           }
-                        });
-                   } else {
-                       res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                   }
-                }
-            });
+            res.send(JSON.stringify({ success: true, message: "Student Attend Successfully", attendance: data }));  
         }
     });
 });

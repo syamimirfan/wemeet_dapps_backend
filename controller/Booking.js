@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const FCM = require("../services/fcm");
 
 
 //get slot for specific lecturer
@@ -46,50 +45,8 @@ router.route('/addbook').post((req, res) => {
                 db.query(sql, [matricNo, staffNo, numberOfStudents, date, time, "Appending"], function(err) {
                     if (err) {
                         res.send(JSON.stringify({ success: false, message: err}));
-                    } else {
-
-                        //to send notification to specific lecturer
-                        const sqlNotificationPerson = "SELECT studName FROM student WHERE matricNo = ?";
-                        const sqlNotification = "SELECT firebaseToken FROM lecturer WHERE staffNo = ?";
-
-                        //to get student and firebaseToken 
-                        db.query(sqlNotificationPerson, [matricNo], function(err, data) {
-                            if(err) {
-                               res.send(JSON.stringify({ success: false, message: err }));
-                            }else{
-                               if(data.length > 0) {
-                                   const studName = data[0]['studName'];
-               
-                                    db.query(sqlNotification,[staffNo], function(err, data) {
-                                       if(err){
-                                           res.send(JSON.stringify({ success: false, message: err }));
-                                       }else {
-                                           if(data.length > 0) {
-                                               const firebaseToken = data[0]['firebaseToken'];
-                                               let message = {
-                                                   notification: {
-                                                       title: "New Appointment From "+ studName,
-                                                       body: "Schedule at: " + date + " "+ time
-                                                   },
-                                                   token: firebaseToken,
-                                                };
-                               
-                                                FCM.send(message, function(err, data) {
-                                                   if(err){
-                                                     return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                   }else {
-                                                     return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                                   }
-                                              });
-                                           }
-                                       }
-                                    });
-                               } else {
-                                   res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                               }
-                            }
-                        });
-  
+                    } else {               
+                        res.send(JSON.stringify({ success: true, message: "Create Booking Successfully", booking: data }));  
                     }
                 });
             }
@@ -174,49 +131,7 @@ router.route('/reject/:bookingId').patch((req, res) => {
                         res.send(JSON.stringify({ success: false, message: err }));
                     }else {
                         if(data.length > 0) {
-                            const matricNo = data[0]['matricNo'];
-                            const staffNo = data[0]['staffNo'];
-
-                            //to send notification to specific student
-                            const sqlNotificationPerson = "SELECT lecturerName FROM lecturer WHERE staffNo = ?";
-                            const sqlNotification = "SELECT firebaseToken FROM student WHERE matricNo = ?";
-                            //to get lecturerName and firebaseToken 
-                            db.query(sqlNotificationPerson, [staffNo], function(err, data) {
-                                if(err) {
-                                res.send(JSON.stringify({ success: false, message: err }));
-                                }else{
-                                if(data.length > 0) {
-                                    const lecturerName = data[0]['lecturerName'];
-
-                                        db.query(sqlNotification,[matricNo], function(err, data) {
-                                        if(err){
-                                            res.send(JSON.stringify({ success: false, message: err }));
-                                        }else {
-                                            if(data.length > 0) {
-                                                const firebaseToken = data[0]['firebaseToken'];
-                                                let message = {
-                                                    notification: {
-                                                        title: "Sorry :)",
-                                                        body: "Your appointment has been rejected by Dr "+ lecturerName
-                                                    },
-                                                    token: firebaseToken,
-                                                    };
-                                
-                                                FCM.send(message, function(err, data) {
-                                                    if(err){
-                                                        return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                    }else {
-                                                        return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        });
-                                } else {
-                                    res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                                }
-                                }
-                            });
+                            res.send(JSON.stringify({ success: true, message: "Reject Appointment", booking: data }));  
 
                         }else {
                             res.send(JSON.stringify({ success: true, message: "Empty Data" }));
@@ -247,49 +162,7 @@ router.route('/accept/:bookingId').patch((req, res) => {
                         res.send(JSON.stringify({ success: false, message: err }));
                     }else {
                         if(data.length > 0) {
-                            const matricNo = data[0]['matricNo'];
-                            const staffNo = data[0]['staffNo'];
-
-                            //to send notification to specific student
-                            const sqlNotificationPerson = "SELECT lecturerName FROM lecturer WHERE staffNo = ?";
-                            const sqlNotification = "SELECT firebaseToken FROM student WHERE matricNo = ?";
-                            //to get lecturerName and firebaseToken 
-                            db.query(sqlNotificationPerson, [staffNo], function(err, data) {
-                                if(err) {
-                                res.send(JSON.stringify({ success: false, message: err }));
-                                }else{
-                                if(data.length > 0) {
-                                    const lecturerName = data[0]['lecturerName'];
-
-                                        db.query(sqlNotification,[matricNo], function(err, data) {
-                                        if(err){
-                                            res.send(JSON.stringify({ success: false, message: err }));
-                                        }else {
-                                            if(data.length > 0) {
-                                                const firebaseToken = data[0]['firebaseToken'];
-                                                let message = {
-                                                    notification: {
-                                                        title: "Great!!!",
-                                                        body: "Your appointment has been accepted by Dr "+lecturerName
-                                                    },
-                                                    token: firebaseToken,
-                                                    };
-                                
-                                                FCM.send(message, function(err, data) {
-                                                    if(err){
-                                                        return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                    }else {
-                                                        return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        });
-                                } else {
-                                    res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                                }
-                                }
-                            });
+                            res.send(JSON.stringify({ success: true, message: "Accepted Appointment", booking: data }));  
 
                         }else {
                             res.send(JSON.stringify({ success: true, message: "Empty Data" }));
@@ -352,49 +225,7 @@ router.route('/updatebooking/:bookingId').patch((req, res) => {
                                     res.send(JSON.stringify({ success: false, message: err }));
                                 }else {
                                     if(data.length > 0) {
-                                        const matricNo = data[0]['matricNo'];
-                                        const staffNumber = data[0]['staffNo'];
-            
-                                        //to send notification to specific lecturer
-                                        const sqlNotificationPerson = "SELECT studName FROM student WHERE matricNo = ?";
-                                        const sqlNotification = "SELECT firebaseToken FROM lecturer WHERE staffNo = ?";
-                                        //to get lecturerName and firebaseToken 
-                                        db.query(sqlNotificationPerson, [matricNo], function(err, data) {
-                                            if(err) {
-                                            res.send(JSON.stringify({ success: false, message: err }));
-                                            }else{
-                                            if(data.length > 0) {
-                                                const studName = data[0]['studName'];
-            
-                                                    db.query(sqlNotification,[staffNumber], function(err, data) {
-                                                    if(err){
-                                                        res.send(JSON.stringify({ success: false, message: err }));
-                                                    }else {
-                                                        if(data.length > 0) {
-                                                            const firebaseToken = data[0]['firebaseToken'];
-                                                            let message = {
-                                                                notification: {
-                                                                    title: "Appointment Change!!!",
-                                                                    body: "Appointment has been updated by " + studName
-                                                                },
-                                                                token: firebaseToken,
-                                                                };
-                                            
-                                                            FCM.send(message, function(err, data) {
-                                                                if(err){
-                                                                    return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                                }else {
-                                                                    return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                    });
-                                            } else {
-                                                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                                            }
-                                            }
-                                        });
+                                        res.send(JSON.stringify({ success: true, message: "Update Appointment Successfully", booking: data }));  
             
                                     }else {
                                         res.send(JSON.stringify({ success: true, message: "Empty Data" }));
@@ -433,49 +264,7 @@ router.route('/updatenostudents/:bookingId').patch((req, res) => {
                         res.send(JSON.stringify({ success: false, message: err }));
                     }else {
                         if(data.length > 0) {
-                            const matricNo = data[0]['matricNo'];
-                            const staffNumber = data[0]['staffNo'];
-
-                            //to send notification to specific lecturer
-                            const sqlNotificationPerson = "SELECT studName FROM student WHERE matricNo = ?";
-                            const sqlNotification = "SELECT firebaseToken FROM lecturer WHERE staffNo = ?";
-                            //to get lecturerName and firebaseToken 
-                            db.query(sqlNotificationPerson, [matricNo], function(err, data) {
-                                if(err) {
-                                res.send(JSON.stringify({ success: false, message: err }));
-                                }else{
-                                if(data.length > 0) {
-                                    const studName = data[0]['studName'];
-
-                                        db.query(sqlNotification,[staffNumber], function(err, data) {
-                                        if(err){
-                                            res.send(JSON.stringify({ success: false, message: err }));
-                                        }else {
-                                            if(data.length > 0) {
-                                                const firebaseToken = data[0]['firebaseToken'];
-                                                let message = {
-                                                    notification: {
-                                                        title: "Appointment Change!!!",
-                                                        body: "Appointment  has been updated by " + studName
-                                                    },
-                                                    token: firebaseToken,
-                                                    };
-                                
-                                                FCM.send(message, function(err, data) {
-                                                    if(err){
-                                                        return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                    }else {
-                                                        return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data }));     
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        });
-                                } else {
-                                    res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                                }
-                                }
-                            });
+                            res.send(JSON.stringify({ success: true, message: "Update No of Student Appointment Successfully", booking: data }));  
 
                         }else {
                             res.send(JSON.stringify({ success: true, message: "Empty Data" }));
@@ -523,57 +312,7 @@ router.route('/deletebooking/:bookingId').delete((req, res) => {
                     res.send(JSON.stringify({ success: false, message: err }));
                 }else {
                     if(data.length > 0) {
-              
-                        const matricNo = data[0]['matricNo'];
-                        const staffNo = data[0]['staffNo'];
-
-                        //to send notification to specific lecturer
-                        const sqlNotificationPerson = "SELECT lecturerName FROM lecturer WHERE staffNo = ?";
-                        const sqlNotification = "SELECT firebaseToken FROM student WHERE matricNo = ?";
-                        //to get lecturerName and firebaseToken 
-                        db.query(sqlNotificationPerson, [staffNo], function(err, data) {
-                            if(err) {
-                            res.send(JSON.stringify({ success: false, message: err }));
-                            }else{
-                            if(data.length > 0) {
-                                const lecturerName = data[0]['lecturerName'];
-
-                                    db.query(sqlNotification,[matricNo], function(err, data) {
-                                    if(err){
-                                        res.send(JSON.stringify({ success: false, message: err }));
-                                    }else {
-                                        if(data.length > 0) {
-                                            const firebaseToken = data[0]['firebaseToken'];
-                                            let message = {
-                                                notification: {
-                                                    title: "Appointment Cancelled!!!",
-                                                    body: "Appointment has been cancelled by Dr " + lecturerName
-                                                },
-                                                token: firebaseToken,
-                                                };
-                            
-                                            FCM.send(message, function(err, data) {
-                                                if(err){
-                                                    return res.send(JSON.stringify({ success: false, message: "Failed to send notification" })); 
-                                                }else {
-                                                    db.query(sql, [bookingId], function(err) {
-                                                        if (err) {
-                                                            res.send(JSON.stringify({ success: false, message: err }));
-                                                        } else {
-                                                     return res.send(JSON.stringify({ success: true, message: "Notification Sent", chat: data })); 
-                                                        }
-                                                    });    
-                                                }
-                                            });
-                                        }
-                                    }
-                                    });
-                            } else {
-                                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-                            }
-                            }
-                        });
-
+                        res.send(JSON.stringify({ success: true, message: "Delete Appointment Successfully", booking: data }));  
                     }else {
                         res.send(JSON.stringify({ success: true, message: "Empty Data" }));
                     }
