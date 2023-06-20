@@ -13,7 +13,7 @@ router.route('/addattendance/absent').post((req, res) => {
 
     const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time,statusReward) VALUES(?,?,?,?,?,?,?)";
 
-    db.query(sql, [matricNo, staffNo, "Absent", numberOfStudents, date, time, "Not Send"], function(err) {
+    db.query(sql, [matricNo, staffNo, "Absent", numberOfStudents, date, time, "Not Send"], function(err,data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
@@ -32,7 +32,7 @@ router.route('/addattendance/attend').post((req, res) => {
 
     const sql = "INSERT INTO attendance(matricNo,staffNo,status,numberOfStudents,date,time, statusReward) VALUES(?,?,?,?,?,?,?)";
 
-    db.query(sql, [matricNo, staffNo, "Attend", numberOfStudents, date, time, "Not Send"], function(err) {
+    db.query(sql, [matricNo, staffNo, "Attend", numberOfStudents, date, time, "Not Send"], function(err,data) {
         if (err) {
             res.send(JSON.stringify({ success: false, message: err }));
         } else {
