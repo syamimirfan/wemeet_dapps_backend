@@ -312,7 +312,14 @@ router.route('/deletebooking/:bookingId').delete((req, res) => {
                     res.send(JSON.stringify({ success: false, message: err }));
                 }else {
                     if(data.length > 0) {
-                        res.send(JSON.stringify({ success: true, message: "Delete Appointment Successfully", booking: data }));  
+                        db.query(sql, [bookingId], function(err) {
+                            if (err) {
+                                res.send(JSON.stringify({ success: false, message: err }));
+                            } else {
+                                res.send(JSON.stringify({ success: true, message: "Delete Appointment Successfully", booking: data }));  
+                            }
+                        });   
+                       
                     }else {
                         res.send(JSON.stringify({ success: true, message: "Empty Data" }));
                     }
