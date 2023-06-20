@@ -48,9 +48,9 @@ router.route('/addlecturer').post((req, res) => {
     } else {
       const lecturerPassword = hash;
 
-      const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, firebaseToken, status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      const sql = "INSERT INTO lecturer(staffNo, lecturerName, icNumber, lecturerTelephoneNo,lecturerEmail,lecturerPassword, lecturerImage, lecturerImageFirebase,faculty, department, createdDate, status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 
-      db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, formattedDate, "", 2], function(err) {
+      db.query(sql, [staffNo, lecturerName, icNumber, lecturerTelephoneNo, lecturerEmail, lecturerPassword, lecturerImage, lecturerImageFirebase, faculty, department, formattedDate, 2], function(err) {
           if (err) {
               res.send(JSON.stringify({ success: false, message: err }));
           } else {
@@ -69,24 +69,6 @@ router.route('/addlecturer').post((req, res) => {
 
 })
 
-//to update the firebase token
-router.route('/updatefirebasetoken/:staffNo').patch((req,res) => {
-    var staffNo = req.params.staffNo;
-    var firebaseToken = req.body.firebaseToken;
-    
-    const sql = "UPDATE lecturer SET firebaseToken = ? WHERE staffNo = ?";
-    db.query(sql, [firebaseToken, staffNo], function(err, data) {
-        if (err) {
-            res.send(JSON.stringify({ success: false, message: err }));
-        } else {
-            if (data.affectedRows > 0) {
-                res.send(JSON.stringify({ success: true, message: "Firebase Token Successfully Update" }));
-            } else {
-                res.send(JSON.stringify({ success: true, message: "Empty Data" }));
-            }
-        }
-    });
-});
 
 //to get lecturerImage link from database to counter the file same name from firebase
 router.route('/getimage/:staffNo').get((req, res) => {
