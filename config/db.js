@@ -2,7 +2,8 @@ const express = require('express');
 var mysql = require('mysql');
 require("dotenv").config();
 
-var connection = mysql.createConnection({
+//or use createConnection
+var connection = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     database: process.env.DB_NAME,
@@ -16,10 +17,20 @@ var connection = mysql.createConnection({
 });
 
 
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log('db connected');
+// connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log('db connected');
+// });
+
+connection.getConnection((err, conn) => {
+    if (err) {
+        console.error('DB connection error:', err);
+        return;
+    }
+    console.log('DB connected successfully!');
+    conn.release(); // Release the connection back to the pool
 });
+
 
 
 module.exports = connection;
